@@ -1,7 +1,14 @@
 def editDistance(s, t):
     n_op = edit_distance_recursive(s=s, t=t, dp=dict())
     n_op_improved = edit_distance_recursive_improved(s=s, t=t, dp=dict())
-    return n_op, n_op_improved
+    str1 = s
+    str2 = t
+    n = len(str1)
+    m = len(str2)
+    dp = [[-1 for i in range(m + 1)] for j in range(n + 1)]
+    n_op_improved_recursive = min_dis_recursive_using_indices(s1=s, s2=t, n=n, m=m, dp=dp)
+    return n_op, n_op_improved, n_op_improved_recursive
+
 
 def edit_distance_recursive(s, t, dp):
     """
@@ -88,7 +95,50 @@ def edit_distance_recursive_improved(s, t, dp):
     return dp[(s, t)]
 
 
-def editDistDP(str1, str2, m, n):
+def min_dis_recursive_using_indices(s1, s2, n, m, dp):
+    # If any string is empty,
+    # return the remaining characters of other string
+    if (n == 0):
+        return m
+    if (m == 0):
+        return n
+
+    # To check if the recursive tree
+    # for given n & m has already been executed
+    if (dp[n][m] != -1):
+        return dp[n][m]
+
+    # If characters are equal, execute
+    # recursive function for n-1, m-1
+    if (s1[n - 1] == s2[m - 1]):
+        if (dp[n - 1][m - 1] == -1):
+            dp[n][m] = min_dis_recursive_using_indices(s1, s2, n - 1, m - 1, dp)
+            return dp[n][m]
+        else:
+            dp[n][m] = dp[n - 1][m - 1]
+            return dp[n][m]
+
+    # If characters are nt equal, we need to
+    # find the minimum cost out of all 3 operations.
+    else:
+        if (dp[n - 1][m] != -1):
+            m1 = dp[n - 1][m]
+        else:
+            m1 = min_dis_recursive_using_indices(s1, s2, n - 1, m, dp)
+    if (dp[n][m - 1] != -1):
+        m2 = dp[n][m - 1]
+    else:
+        m2 = min_dis_recursive_using_indices(s1, s2, n, m - 1, dp)
+    if (dp[n - 1][m - 1] != -1):
+        m3 = dp[n - 1][m - 1]
+    else:
+        m3 = min_dis_recursive_using_indices(s1, s2, n - 1, m - 1, dp)
+
+    dp[n][m] = 1 + min(m1, min(m2, m3))
+    return dp[n][m]
+
+
+def edit_dist_dp_tabulated_g4g(str1, str2, m, n):
     """
     Tabulated solution from Geeks 4 Geeks.
 
@@ -134,6 +184,6 @@ if __name__ == '__main__':
     s = "ecfbefdcfca"
     t = "badfcbebbf"
     operations = editDistance(s=s, t=t)
-    solution_g4g = editDistDP(str1=s, str2=t, m=len(s), n=len(t))
+    solution_g4g = edit_dist_dp_tabulated_g4g(str1=s, str2=t, m=len(s), n=len(t))
     print("Number of operations: {}.".format(operations))
     print("G4G tabulated -- Number of operations: {}.".format(solution_g4g))
