@@ -61,3 +61,57 @@ def _get_palindromic_subseq(left, right):
             return left_palindromic, left_palindromic[::-1]
         left_palindromic = char_left + left_palindromic
     return left_palindromic, left_palindromic[::-1]
+
+
+""" Approach with dynamic programming. Idea is to start with a brute-force algorithm where we check for each
+ substring between indices (i, j) whether they are palindromes, and then realize that (i, j) is a palindrome
+ iif (i + 1, j - 1) is a palindrome, and the char at i and at j are the same.
+  
+  Base cases are (i, i + 1) is always a palindrome (single char), and (i, i + 2) is a palindrome iif both chars
+  are the same
+  """
+
+
+def longest_palindrome_dp(s: str) -> str:
+    # get longest palindrome from this
+    len_longest_palindrome = 1
+    longest_palindrome = s[0]
+
+    # table of len(s) * len(s) where (i, j) is True iif s[i:j + 1] is a palindrome.
+    # dp[i][j] will be false iif substring str[i..j] is not palindrome
+    dp = [[None] * len(s) for _ in range(len(s))]
+
+    # fill the results for all palindromes of length 1 and 2
+    for i in range(len(s)):
+        dp[i][i] = True  # single element s[i] must be a palindrome
+        if i <= len(s) - 2:
+            dp[i][i + 1] = (s[i] == s[i + 1])  # two element s[i: i + 2] is palindrome iif both elements are the same
+            if (len_longest_palindrome < 2) and dp[i][i + 1]:
+                len_longest_palindrome = 2
+                longest_palindrome = s[i:i + 2]
+
+    # now, (i, j) is palindrome iif (i + 1, j - 1) is palindrome and s[i] == s[j].
+    # Check for lengths greater than 2.
+    # k is length of substring
+    for k in range(3, len(s) + 1):
+        for i in range(len(s) - k + 1):  # starting point
+            # ending index of substring
+            j = i + k - 1
+            is_palindrome = dp[i + 1][j - 1] and (s[i] == s[j])
+            dp[i][j] = is_palindrome
+            if dp[i][j] and (k > len_longest_palindrome):
+                len_longest_palindrome = k
+                longest_palindrome = s[i: j + 1]
+    return longest_palindrome
+
+""" Using longest common substring on inverted string """
+
+""" Expand around center using indices """
+
+""" Manacher Algorithm """
+if __name__ == "__main__":
+    candidate = "ccc"
+    my_sol = longest_palindrome_my_sol(s=candidate)
+    dp_sol = longest_palindrome_dp(s=candidate)
+    print("My solution: {}.".format(my_sol))
+    print("DP solution: {}".format(dp_sol))
