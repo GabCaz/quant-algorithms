@@ -41,11 +41,9 @@ _POSSIBLE_MOVES = {
 
 
 def find_path(m, n):
-    possible_paths = {
-        (0, 0): {""}  # mapping of possible positions reachable with sets of moves that allows to reach them
-    }
+    possible_paths = set()  # possible solutions
     possible_paths = _find_path_backtracking(x=0, y=0, move_seq="", m=m, n=n, possible_paths=possible_paths)
-    sol = list(possible_paths.get((n - 1, n - 1), {}))
+    sol = list(possible_paths)
     sol.sort()
     return sol
 
@@ -54,7 +52,6 @@ def _find_path_backtracking(x: int, y: int, move_seq: str, m, n, possible_paths)
     # make new moves if possible...
     m = copy.deepcopy(m)  # remember where we are -- we don't want a move that will get us right here
     m[y][x] = 0
-    # print(possible_paths)
 
     for move in _POSSIBLE_MOVES:
         # we need to keep track of the cells that we visited as we make paths, otherwise there is a risk to
@@ -62,14 +59,12 @@ def _find_path_backtracking(x: int, y: int, move_seq: str, m, n, possible_paths)
         x_new, y_new = _make_move(x=x, y=y, move=move)
         move_seq_new = move_seq + move
         if _position_is_valid(x=x_new, y=y_new, m=m, n=n):
-            # record the move, and recurse
-            pos = (x_new, y_new)
-            if pos in possible_paths:
-                possible_paths[pos].add(move_seq_new)
+            # record the move if it is a solution, else recurse
+            if x_new == n - 1 and y_new == n - 1:
+                possible_paths.add(move_seq_new)
             else:
-                possible_paths[pos] = {move_seq_new}
-            possible_paths = _find_path_backtracking(x=x_new, y=y_new, move_seq=move_seq_new, m=m, n=n,
-                                                     possible_paths=possible_paths)
+                possible_paths = _find_path_backtracking(x=x_new, y=y_new, move_seq=move_seq_new, m=m, n=n,
+                                                         possible_paths=possible_paths)
 
     # if that position is clearly infeasible, then just give up right here
     return possible_paths
