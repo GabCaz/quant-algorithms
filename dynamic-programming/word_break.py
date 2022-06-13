@@ -128,6 +128,16 @@ def work_break_dp(s: str, word_dict: List[str]) -> bool:
     return dp[len(s)]
 
 
+def very_short_solution(s: str, word_dict: List[str]) -> bool:
+    """
+    https://leetcode.com/problems/word-break/discuss/43788/4-lines-in-Python
+    """
+    ok = [True]
+    for i in range(1, len(s)+1):
+        ok += any(ok[j] and s[j:i] in word_dict for j in range(i)),
+    return ok[-1]
+
+
 if __name__ == "__main__":
     s = "applepenapple"
     word_dict = ["apple", "pen"]
@@ -135,3 +145,4 @@ if __name__ == "__main__":
     sol_cache = word_break_lru_cache(s=s, word_dict=word_dict)
     sol_bfs = word_break_bfs(s=s, word_dict=word_dict)
     sol_dp = work_break_dp(s=s, word_dict=word_dict)
+    short_sol = very_short_solution(s=s, word_dict=word_dict)
