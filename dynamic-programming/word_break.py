@@ -22,6 +22,10 @@ Input: s = "catsandog", wordDict = ["cats","dog","sand","and","cat"]
 Output: false
 """
 
+from typing import FrozenSet, List
+from functools import lru_cache
+
+
 """ My correct solution using memoization, and remembering what indices are feasible """
 
 
@@ -31,7 +35,6 @@ def word_break(s, word_dict):
     infeasible_indices = set()
     output = word_break_recurse(s=s, word_dict=word_dict, idx=0, feasible_indices=feasible_indices,
                                 infeasible_indices=infeasible_indices)
-    # print(wordDict)
     return output
 
 
@@ -46,7 +49,6 @@ def word_break_recurse(s, word_dict, idx, feasible_indices, infeasible_indices):
         return True
     for word in word_dict:
         i = len(word)
-        # print("word: {}. Subset s: {}.".format(word, s[:i]))
         if word == s[idx: idx + i]:
             if word_break_recurse(s=s, word_dict=word_dict, idx=idx + i, feasible_indices=feasible_indices,
                                   infeasible_indices=infeasible_indices):
@@ -55,3 +57,27 @@ def word_break_recurse(s, word_dict, idx, feasible_indices, infeasible_indices):
             else:
                 infeasible_indices.add(idx)
     return False
+
+
+""" Leetcode cute solution using LRU cache """
+
+
+def word_break_lru_cache(s: str, word_dict: List[str]) -> bool:
+    @lru_cache
+    def word_break_memo(s: str, word_dict: FrozenSet[str], start: int):
+        if start == len(s):
+            return True
+        for end in range(start + 1, len(s) + 1):
+            if s[start:end] in word_dict and word_break_memo(s, word_dict, end):
+                return True
+        return False
+
+    return word_break_memo(s, frozenset(word_dict), 0)
+
+
+if __name__ == "__main__":
+    s = "applepenapple"
+    word_dict = ["apple", "pen"]
+    sol = word_break(s=s, word_dict=word_dict)
+    sol_cache = word_break_lru_cache(s=s, word_dict=word_dict)
+
