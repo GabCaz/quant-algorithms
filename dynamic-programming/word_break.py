@@ -23,6 +23,8 @@ Output: false.
 
 Some interesting ideas:
 - collections.deque has O(1) append and pop
+- when you popleft for deque, then you do breadth-first search. If you pop, then you do depth-first (i.e. get last
+    possibility)
 """
 
 from typing import FrozenSet, List
@@ -103,9 +105,33 @@ def word_break_bfs(s: str, word_dict: List[str]) -> bool:
     return False
 
 
+def work_break_dp(s: str, word_dict: List[str]) -> bool:
+    """
+    The intuition behind this approach is that the given problem (ss) can be divided into subproblems s1 and s2.
+    If these subproblems individually satisfy the required conditions, the complete problem, s also satisfies the
+    same. e.g. "catsanddog" can be split into two substrings "catsand",
+    "dog". The subproblem "catsand" can be further divided into "cats",
+    "and", which individually are a part of the dictionary making "catsand" satisfy the
+    condition. Going further backwards, "catsand", "dog" also satisfy the required criteria
+    individually leading to the complete string "catsanddog" also to satisfy the criteria.
+    """
+    word_set = set(word_dict)
+    dp = [False] * (len(s) + 1)
+    dp[0] = True  # the null string can always be decomposed: just don't take any word
+
+    for i in range(1, len(s) + 1):  # for each substring s[:i]
+        for j in range(i):  # index partitioning s[:i] into s[:j] and s[j + 1: i]
+            # both substrings can be partitioned: the concatenation of both substrings can be partitioned
+            if dp[j] and s[j:i] in word_set:
+                dp[i] = True
+                break
+    return dp[len(s)]
+
+
 if __name__ == "__main__":
     s = "applepenapple"
     word_dict = ["apple", "pen"]
     sol = word_break(s=s, word_dict=word_dict)
     sol_cache = word_break_lru_cache(s=s, word_dict=word_dict)
     sol_bfs = word_break_bfs(s=s, word_dict=word_dict)
+    sol_dp = work_break_dp(s=s, word_dict=word_dict)
