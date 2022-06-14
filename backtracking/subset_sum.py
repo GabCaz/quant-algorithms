@@ -99,9 +99,44 @@ def is_subset_sum(arr, n, target):
     return subset[n][target]
 
 
+""" 
+Space optimized dynamic programming: for filling a row only the values from previous row is required. So alternate 
+rows are used either making the first one as current and second as previous or the first as previous and second as 
+current.  
+"""
+
+
+def is_subset_target_space_optimized(arr, n, target):
+    """ Trick: use modulo 2 to define current and previous index """
+    # The value of subset[i%2][j] will be true
+    # if there exists a subset of sum j in
+    # arr[0, 1, ...., i-1]
+    subset = [[False for j in range(target + 1)] for i in range(3)]
+
+    for i in range(n + 1):
+        for j in range(target + 1):
+            # A subset with sum 0 is always possible
+            curr_i = i % 2
+            prev_i = (i + 1) % 2
+            if j == 0:
+                subset[curr_i][j] = True
+
+            # If there exists no element no sum
+            # is possible
+            elif i == 0:
+                subset[curr_i][j] = False
+            elif arr[i - 1] <= j:
+                subset[curr_i][j] = subset[prev_i][j - arr[i - 1]] or subset[prev_i][j]
+            else:
+                subset[curr_i][j] = subset[prev_i][j]
+
+    return subset[n % 2][target]
+
+
 if __name__ == "__main__":
     arr = [4, 1, 10, 12, 5, 2]
     my_sol = equal_partition(arr=arr)
     target = sum(arr) / 2
     n = len(arr)
     solution_dp = is_subset_sum(arr=arr, n=n, target=int(target))
+    space_optimized_res = is_subset_target_space_optimized(arr=arr, n=n, target=int(target))
