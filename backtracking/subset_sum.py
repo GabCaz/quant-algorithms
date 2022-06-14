@@ -19,6 +19,8 @@ partitioned into two such parts.
 
 """
 
+""" My correct solution  """
+
 
 def equal_partition(arr):
     """
@@ -50,6 +52,56 @@ def equal_partition(arr):
     return False
 
 
+""" 
+Solution using dynamic programming (Geeks 4 Geeks) in pseudo-polynomial time
+    
+There are two cases:
+    1. Consider the last element and now the required sum = target sum – value of ‘last’ element and number of 
+        elements = total elements – 1
+    2. Leave the ‘last’ element and now the required sum = target sum and number of elements = total elements – 1
+    
+I.E. isSubsetSum(set, n, sum) = isSubsetSum(set, n-1, sum) || isSubsetSum(set, n-1, sum-set[n-1])
+
+Time Complexity: O(sum*n), where sum is the ‘target sum’ and ‘n’ is the size of array.
+Auxiliary Space: O(sum*n), as the size of 2-D array is sum*n. + O(n) for recursive stack space
+"""
+
+
+def is_subset_sum(arr, n, target):
+    # The value of subset[i][j] will be
+    # true if there is a
+    # subset of set[0..i-1] with sum equal to j
+    subset = ([[False for i in range(target + 1)]
+               for i in range(n + 1)])
+
+    # If sum is 0, then answer is true
+    for i in range(n + 1):
+        subset[i][0] = True
+
+    # If sum is not 0 and set is empty,
+    # then answer is false
+    for i in range(1, target + 1):
+        subset[0][i] = False
+
+    # Fill the subset table in bottom up manner
+    for i in range(1, n + 1):
+        for j in range(1, target + 1):
+            if j < arr[i - 1]:
+                # the target is smaller than the element: do not select element. So, we could only reach
+                #  the value if we could reach the value with the previous elements we had
+                subset[i][j] = subset[i - 1][j]
+            if j >= arr[i - 1]:
+                # the target is greater than the element: see if any of previous states have already experienced the
+                #   sum=’j’ (I.E. do not select the new element) OR any previous states experienced a value
+                #   ‘j – A[i]’ (I.E. we select the new element)
+                subset[i][j] = (subset[i - 1][j] or
+                                subset[i - 1][j - arr[i - 1]])
+    return subset[n][target]
+
+
 if __name__ == "__main__":
     arr = [4, 1, 10, 12, 5, 2]
     my_sol = equal_partition(arr=arr)
+    target = sum(arr) / 2
+    n = len(arr)
+    solution_dp = is_subset_sum(arr=arr, n=n, target=int(target))
